@@ -1,121 +1,123 @@
 import streamlit as st
 
-st.set_page_config(page_title="Prediction Result", page_icon="📊")
-st.markdown(
-    """
-    <style>
+# ================= LOGIN PROTECTION =================
+if "user" not in st.session_state:
+    st.switch_page("pages/Login.py")
 
-    /* ================= GLOBAL BACKGROUND ================= */
-    .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #f8fafc 100%);
-        color: #0f172a;
-    }
+# ================= PAGE CONFIG =================
+st.set_page_config(
+    page_title="Prediction Result",
+    page_icon="📊",
+    layout="centered"
+)
 
-    /* ================= HEADINGS ================= */
-    h1, h2, h3, h4, h5, h6 {
-        color: #0f172a !important;
-        font-weight: 700;
-    }
+# ================= SIDEBAR =================
+st.sidebar.success(
+    f"👤 Logged in as: {st.session_state['user']}"
+)
 
-    /* ================= INPUT FIELDS ================= */
-    .stTextInput>div>div>input,
-    .stNumberInput>div>div>input {
-        background-color: #ffffff;
-        color: #0f172a;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
-        padding: 8px;
-    }
+st.sidebar.write("---")
 
-    /* ================= SELECTBOX ================= */
-    .stSelectbox>div>div {
-        background-color: #ffffff;
-        color: #0f172a;
-        border-radius: 10px;
-        border: 1px solid #cbd5e1;
-    }
+if st.sidebar.button("🚪 Logout"):
 
-    /* ================= BUTTON ================= */
-    .stButton>button {
-        background-color: #2563eb;
-        color: white !important;
-        border-radius: 10px;
-        padding: 0.6rem 1.2rem;
-        font-weight: 600;
-        border: none;
-        transition: 0.3s;
-    }
+    st.session_state.pop("user", None)
+    st.session_state.pop("prediction", None)
+    st.session_state.pop("payload", None)
 
-    .stButton>button:hover {
-        background-color: #1d4ed8;
-        color: white !important;
-    }
+    st.switch_page("pages/Login.py")
 
-    /* ================= SIDEBAR LIGHT ================= */
+# ================= CSS =================
+st.markdown("""
+<style>
+
+/* Main Background */
+.stApp {
+    background: linear-gradient(135deg, #0f172a 0%, #f8fafc 100%);
+    color: #0f172a;
+}
+
+/* Header */
+header[data-testid="stHeader"] {
+    background: linear-gradient(135deg, #0f172a 0%, #f8fafc 100%);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    color: #0f172a !important;
+    font-weight: 700;
+}
+
+/* Sidebar */
 section[data-testid="stSidebar"] {
     background-color: #f8fafc !important;
-    color: #0f172a;
     border-right: 1px solid #e2e8f0;
 }
 
-/* ================= SIDEBAR NAV ================= */
-section[data-testid="stSidebar"] div[data-testid="stSidebarNav"] {
-    background-color: #f8fafc !important;
+/* Buttons */
+.stButton > button {
+    width: 100%;
+    background-color: #2563eb;
+    color: white !important;
+    border-radius: 10px;
+    border: none;
+    padding: 0.7rem;
+    font-weight: 600;
 }
 
-/* ================= PAGE LINKS ================= */
-section[data-testid="stSidebar"] div[data-testid="stSidebarNav"] a {
-    color: #0f172a !important;
-    font-weight: 500;
-    padding: 8px 10px;
-    border-radius: 8px;
+.stButton > button:hover {
+    background-color: #1d4ed8;
 }
 
-/* Hover effect */
-section[data-testid="stSidebar"] div[data-testid="stSidebarNav"] a:hover {
-    background-color: #e2e8f0 !important;
-    color: #0f172a !important;
+/* Alert Boxes */
+[data-testid="stAlert"] {
+    border-radius: 10px;
 }
 
-/* Active page */
-section[data-testid="stSidebar"] div[data-testid="stSidebarNav"] a[aria-current="page"] {
-    background-color: #2563eb !important;
-    color: #ffffff !important;
-    border-radius: 8px;
-}
-    /* ================= LABELS ================= */
-    label {
-        color: #1f2937 !important;
-        font-weight: 500;
-    }
+</style>
+""", unsafe_allow_html=True)
 
-    /* ================= SUCCESS / ERROR BOX ================= */
-    .stSuccess {
-        background-color: #dcfce7;
-        color: #166534;
-    }
-
-    .stError {
-        background-color: #fee2e2;
-        color: #991b1b;
-    }
-
-    /* ================= HEADER BAR (optional fix) ================= */
-    header[data-testid="stHeader"] {
-        background: linear-gradient(135deg, #0f172a 0%, #f8fafc 100%);
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
+# ================= PAGE TITLE =================
 st.title("📊 Prediction Result")
 
+# ================= RESULT =================
 if "prediction" in st.session_state:
-    st.success(f"✅ Predicted Selling Price: ₹ {st.session_state['prediction']:.2f} lakhs")
 
-    st.write("### Input Details")
-    st.json(st.session_state["payload"])
+    prediction = st.session_state["prediction"]
+
+    st.success(
+        f"✅ Predicted Selling Price: ₹ {prediction:.2f} Lakhs"
+    )
+
+    st.write("")
+
+    st.subheader("🚗 Car Details")
+
+    payload = st.session_state.get("payload", {})
+
+    if payload:
+        st.json(payload)
+
 else:
-    st.warning("No prediction found. Please go back and run prediction again.")
+    st.warning(
+        "⚠️ No prediction found. Please run prediction first."
+    )
+
+# ================= BUTTONS =================
+st.write("")
+st.write("---")
+
+col1, col2 = st.columns(2)
+
+with col1:
+
+    if st.button("⬅ Back To Home"):
+        st.switch_page("pages/Home.py")
+
+with col2:
+
+    if st.button("🔄 New Prediction"):
+
+        st.session_state.pop("prediction", None)
+        st.session_state.pop("payload", None)
+
+        st.switch_page("pages/Home.py")
