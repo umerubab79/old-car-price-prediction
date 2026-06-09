@@ -155,7 +155,7 @@ if st.button("💰 Predict Price"):
     try:
 
         response = requests.post(
-            "http://127.0.0.1:8000/predict",
+            "https://old-car-price-prediction-hf3d.onrender.com/predict",
             json=payload,
             timeout=30
         )
